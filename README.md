@@ -11,3 +11,12 @@
 - It is a debugging tool and is not suitable for recording high quality video.
 
 ## How to use
+
+1) Create an empty game object.
+2) Add the LiveRecord script on top of the empty game object.
+3) Configure the LiveRecord object by modifiying the parameters.
+  - Image Count: Number of images/frames stored in the memory.
+  - Scale Ratio: The downscale ratio of the recorded frames.
+  - Jpeg Quality: Quality of the Jpegs stored in the persistant storage.
+  - Start Delay: How much the tool will wait before starting the recording.
+  - Capture Count to Keep: Number of captures that will be kept on the persistent storage, oldest capture will be deleted if the amount is passed.
