@@ -6,6 +6,8 @@
 
 - It captures the gameplay screen every 3 frames so the recording is in 20 frames per second for a 60 fps game.
 
+- It allows users to record the previous 30 seconds from the time they press the record button, so it is practically a time machine.
+
 - It is a debugging tool and is not suitable for recording high quality video.
 
 ## How to use
