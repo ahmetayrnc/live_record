@@ -8,8 +8,8 @@
 
 ## How to use
 
-1) Create an empty game object.
-2) Add the LiveRecord script on top of the empty game object.
+1) Import the LiveRecord unity package.
+2) Move the LiveRecord prefab to the scene.
 3) Configure the LiveRecord object by modifying the parameters.
     - **Image Count:** Number of images/frames stored in the memory.
     - **Scale Ratio:** The downscale ratio of the recorded frames.
@@ -18,11 +18,21 @@
     - **Start Delay:** How much the tool will wait before starting the recording.
     - **Capture Count:** Number of captures that will be kept on the persistent storage, the oldest capture will be deleted if the amount is passed.
 4) Add the cameras you want to be rendered in the footage to the Cameras array.
-5) Create a button anywhere you want to control the LiveRecord.
-6) Add the SaveRecordingButton script to the button.
-7) Drag the LiveRecord object in the scene to the SaveRecordingButton script.
-8) Drag a TextMeshPro Text object to the "Progress Text" field of the SaveRecordingButton script.
-9) Press the button while the game is running to save the last 30 seconds.
+5) Move the SaveRecordingButton prefab to the scene, below a canvas.
+6) Drag the LiveRecord object in the scene to the SaveRecordingButton script.
+7) Press the button while the game is running to save the last 30 seconds.
+
+### How to replay the saved footage
+- The footage is recorded as Jpegs to the persistent data path.
+- Unity Doc Link: https://docs.unity3d.com/ScriptReference/Application-persistentDataPath.html
+- The footage can be converted to mp4 using the Python script in the repo.
+- The footage can also be replayed inside the game using the Playback Scene provided in the package.
+
+### Using the Playback Scene
+- Number of the available footage is shown on the bottom left corner.
+- Enter the desired number of the footage to the input field on the bottom left corner.
+- Then press the Load button.
+- After the footage is loaded, the buttons and the slider can be used to control the playback.
 
 ### Notes:
 There are 3 public methods:
