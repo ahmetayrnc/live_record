@@ -18,9 +18,17 @@
     - **Start Delay:** How much the tool will wait before starting the recording.
     - **Capture Count:** Number of captures that will be kept on the persistent storage, the oldest capture will be deleted if the amount is passed.
 4) Add the cameras you want to be rendered in the footage to the Cameras array.
+
+![Live Record Inspector](https://github.com/ahmetayrnc/live_record/blob/master/images/live_record_inspector.png)
+
 5) Move the SaveRecordingButton prefab to the scene, below a canvas.
 6) Drag the LiveRecord object in the scene to the SaveRecordingButton script.
+
+![Live Record Save Button](https://github.com/ahmetayrnc/live_record/blob/master/images/save_button_inspector.png)
+
 7) Press the button while the game is running to save the last 30 seconds.
+
+![Live Record Button in Action](https://github.com/ahmetayrnc/live_record/blob/master/images/live_record_gameplay.png)
 
 ### How to replay the saved footage
 - The footage is recorded as Jpegs to the persistent data path.
@@ -34,8 +42,10 @@
 - Then press the Load button.
 - After the footage is loaded, the buttons and the slider can be used to control the playback.
 
+![Live Record Button in Action](https://github.com/ahmetayrnc/live_record/blob/master/images/live_record_playback.png)
+
 ### Notes:
-There are 3 public methods:
+Public methods:
 - **StartRecording():** Starts the background recording process.
 - **StopRecording():** Stops the background recording process.
 - **SaveCapture(...):** Saves the last 30 seconds to persistent storage.
