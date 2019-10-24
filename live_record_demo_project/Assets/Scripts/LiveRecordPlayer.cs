@@ -79,8 +79,7 @@ public class LiveRecordPlayer : MonoBehaviour
             return;
         }
 
-        var captureNo = _captureDirs.Length - 1;
-        if (!int.TryParse(captureNoInputField.text, out captureNo))
+        if (!int.TryParse(captureNoInputField.text, out var captureNo))
         {
             captureNo = _captureDirs.Length - 1;
         }
@@ -143,12 +142,13 @@ public class LiveRecordPlayer : MonoBehaviour
 
     public void NextFrame()
     {
-        SetFrameInside(_currentFrame + 1, true);
+        var toFrame = Mathf.Clamp(_currentFrame + 1, 0, GetDuration());
+        SetFrameInside(toFrame, true);
     }
 
     public void PrevFrame()
     {
-        var toFrame = _currentFrame != 0 ? _currentFrame - 1 : _currentFrame;
+        var toFrame = Mathf.Clamp(_currentFrame - 1, 0, _currentFrame);
         SetFrameInside(toFrame, true);
     }
 
@@ -174,7 +174,7 @@ public class LiveRecordPlayer : MonoBehaviour
         if (_playbackState != PlaybackState.Playing) return;
 
         SetFrameInside(_currentFrame, false);
-        _currentFrame++;
+        _currentFrame = Mathf.Clamp(_currentFrame + 1, 0, GetDuration());
     }
 
     private void SetupSlider()

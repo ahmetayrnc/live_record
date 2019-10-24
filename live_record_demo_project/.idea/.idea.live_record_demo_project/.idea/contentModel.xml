@@ -8,6 +8,7 @@
       <e p="Assets" t="Include">
         <e p="Scripts" t="Include">
           <e p="LiveRecord.cs" t="Include" />
+          <e p="LiveRecordPlayer.cs" t="Include" />
           <e p="RotatingCube.cs" t="Include" />
           <e p="SaveRecordingButton.cs" t="Include" />
         </e>
