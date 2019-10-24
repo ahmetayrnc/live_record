@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using PeakGames.Amy.CoreUI.Scripts;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,16 +9,32 @@ using UnityEngine.UI;
 public class LiveRecord : MonoBehaviour
 {
     //config
-    private const int ImageCount = 600;
-    private const float ScaleRatio = 0.35f;
-    private const int JpegQuality = 80;
+    [Tooltip("Number of images/frames stored in the memory.")] [Range(0, 600)]
+    public int imageCount = 600;
+
+    [Tooltip("The downscale ratio of the recorded frames.")] [Range(0, 1f)]
+    public float scaleRatio = 0.35f;
+
+    [Tooltip("Quality of the JPEGs stored in the persistent storage.")] [Range(0, 100)]
+    public int jpegQuality = 80;
+
+    [Tooltip("Whether the recording should start automatically inside the awake method or should start manually.")]
+    public bool autoStart = true;
+
+    [Tooltip("How much the tool will wait before starting the recording.")] [Range(0, 10f)]
+    public float startDelay = 1f;
+
+    [Tooltip("Number of captures that will be kept on the persistent storage, the oldest capture will be deleted.")]
+    [Range(0, 100)]
+    public int captureCountToKeep = 10;
+
+    //cams
+    [Tooltip("Cameras you want to be rendered in the footage")]
+    public Camera[] cameras;
 
     //images
     private Queue<byte[]> _images;
     private Queue<byte[]> _tempImages;
-
-    //cams
-    private Camera[] _cams;
 
     //texture
     private int _width;
@@ -32,9 +47,6 @@ public class LiveRecord : MonoBehaviour
     private bool _recording;
     private int _progress;
 
-    //level
-    private LevelManager _levelManager;
-
     //record state
     private RecordState _recordState;
 
@@ -43,18 +55,16 @@ public class LiveRecord : MonoBehaviour
         CamToRenderTexture,
         TextureToTexture,
         TextureToBytes,
+        Break
     }
 
     private void Awake()
     {
-        _levelManager = GameObject.Find("LevelManagerGO").GetComponent<LevelManager>();
-        _cam = GameObject.Find("GameCamera").GetComponent<Camera>();
-        _uiCam = GameObject.Find("UiCamera").GetComponent<Camera>();
-        _images = new Queue<byte[]>(ImageCount);
-        _tempImages = new Queue<byte[]>(ImageCount);
+        _images = new Queue<byte[]>(imageCount);
+        _tempImages = new Queue<byte[]>(imageCount);
 
-        _width = (int) (Screen.width * ScaleRatio);
-        _height = (int) (Screen.height * ScaleRatio);
+        _width = (int) (Screen.width * scaleRatio);
+        _height = (int) (Screen.height * scaleRatio);
 
         _renderTexture = new RenderTexture(_width, _height, 24);
 
@@ -62,12 +72,30 @@ public class LiveRecord : MonoBehaviour
 
         _rect = new Rect(0, 0, _width, _height);
 
-        StartCoroutine(StartRecording());
+        if (autoStart)
+        {
+            StartRecording();
+        }
     }
 
-    private IEnumerator StartRecording()
+    public void StartRecording()
     {
-        yield return new WaitForSeconds(1f);
+        StartCoroutine(StartRecordingCo());
+    }
+
+    public void StopRecording()
+    {
+        _recording = false;
+    }
+
+    public void SaveCapture(Button button, TextMeshProUGUI text)
+    {
+        StartCoroutine(SaveCaptureCo(button, text));
+    }
+
+    private IEnumerator StartRecordingCo()
+    {
+        yield return new WaitForSeconds(startDelay);
         _recording = true;
     }
 
@@ -94,13 +122,12 @@ public class LiveRecord : MonoBehaviour
 
     private void CamToRenderTexture()
     {
-        _cam.targetTexture = _renderTexture;
-        _cam.Render();
-        _cam.targetTexture = null;
-
-        _uiCam.targetTexture = _renderTexture;
-        _uiCam.Render();
-        _uiCam.targetTexture = null;
+        foreach (var cam in cameras)
+        {
+            cam.targetTexture = _renderTexture;
+            cam.Render();
+            cam.targetTexture = null;
+        }
 
         _recordState = RecordState.TextureToTexture;
     }
@@ -116,30 +143,23 @@ public class LiveRecord : MonoBehaviour
 
     private void TextureToBytes()
     {
-        if (_images.Count >= ImageCount)
+        if (_images.Count >= imageCount)
         {
             _images.Dequeue();
         }
 
-        _images.Enqueue(_texture.EncodeToJPG(JpegQuality));
+        _images.Enqueue(_texture.EncodeToJPG(jpegQuality));
 
-        _recordState = RecordState.CamToRenderTexture;
+        _recordState = RecordState.Break;
     }
 
-    public void RecordLast30S(Button button, TextMeshProUGUI text)
-    {
-        StartCoroutine(RecordMovie(button, text));
-    }
-
-    private IEnumerator RecordMovie(Button button, TextMeshProUGUI text)
+    private IEnumerator SaveCaptureCo(Button button, TextMeshProUGUI text)
     {
         button.enabled = false;
         var initialButtonText = text.text;
         _tempImages = new Queue<byte[]>(_images);
 
-        var capturePath = string.Format("{0}/gameplay_capture/{1:yyyy-MM-dd_HH-mm-ss}_level_{2}/",
-            Application.persistentDataPath,
-            DateTime.Now, _levelManager.CurrentLevel.LevelNo);
+        var capturePath = $"{Application.persistentDataPath}/gameplay_capture/{DateTime.Now:yyyy-MM-dd_HH-mm-ss}/";
 
         if (!Directory.Exists(capturePath))
         {
@@ -153,9 +173,9 @@ public class LiveRecord : MonoBehaviour
         while (_tempImages.Count > 0)
         {
             var bytes = _tempImages.Dequeue();
-            var framename = frameCount.ToString().PadLeft(4, '0');
-            var filename = "/f_" + framename + ".jpeg";
-            var fullFilePath = capturePath + filename;
+            var frameName = frameCount.ToString().PadLeft(4, '0');
+            var fileName = "/f_" + frameName + ".jpeg";
+            var fullFilePath = capturePath + fileName;
             File.WriteAllBytes(fullFilePath, bytes);
             frameCount++;
             _progress++;
@@ -167,9 +187,9 @@ public class LiveRecord : MonoBehaviour
             }
         }
 
-        var capturesDir = string.Format("{0}/gameplay_capture/", Application.persistentDataPath);
+        var capturesDir = $"{Application.persistentDataPath}/gameplay_capture/";
         var captureDirs = Directory.GetDirectories(capturesDir);
-        if (captureDirs.Length > 10)
+        if (captureDirs.Length > captureCountToKeep)
         {
             Array.Sort(captureDirs, StringComparer.Ordinal);
             var willBeDeletedCapture = captureDirs[0];
@@ -179,11 +199,11 @@ public class LiveRecord : MonoBehaviour
             }
             else
             {
-                var hi = Directory.GetFiles(willBeDeletedCapture);
+                var deletedCaptureFolder = Directory.GetFiles(willBeDeletedCapture);
 
-                for (var i = 0; i < hi.Length; i++)
+                foreach (var file in deletedCaptureFolder)
                 {
-                    File.Delete(hi[i]);
+                    File.Delete(file);
                 }
 
                 Directory.Delete(willBeDeletedCapture);
