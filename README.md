@@ -37,7 +37,7 @@
 - The footage can also be replayed inside the game using the Playback Scene provided in the package.
 
 ### Using the Playback Scene
-- Number of the available footage is shown on the bottom left corner.
+- The number of available footage is shown on the bottom left corner.
 - Enter the desired number of the footage to the input field on the bottom left corner.
 - Then press the Load button.
 - After the footage is loaded, the buttons and the slider can be used to control the playback.
