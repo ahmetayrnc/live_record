@@ -7,12 +7,25 @@ using UnityEngine.UI;
 public class LiveRecordPlayer : MonoBehaviour
 {
     //ui
+    [Tooltip("The image that the footage will be shown on.")]
     public RawImage display;
+
+    [Tooltip("Play button text, changed when paused and stopped.")]
     public TextMeshProUGUI playButtonText;
+
+    [Tooltip("Slider that controls the player.")]
     public Slider playSlider;
+
+    [Tooltip("All Playback objects such as play, next, prev.")]
     public GameObject playbackObjects;
+
+    [Tooltip("Shows the available saved captures on disk, by numbers.")]
     public TextMeshProUGUI captureOptionsText;
+
+    [Tooltip("Input field to open the desired capture, by numbers.")]
     public TMP_InputField captureNoInputField;
+
+    [Tooltip("footage/folder name that is displayed above.")]
     public TextMeshProUGUI folderName;
 
     private const string PlayingStateText = "Pause";
